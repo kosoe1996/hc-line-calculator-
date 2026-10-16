@@ -1,18 +1,24 @@
-HC / Line Completion Dashboard — Checker and Remaining Time Fix
+HC / Line Completion — Block Overview + Remaining Time Fix
 
-Changes:
-- Removed the separate Complete Pick Line manual field and moved the input inside the Complete Pick card.
-- Current Status uses the sum of Order Line values in Block Overview as its total.
-- Checker Status = Block Overview Total Order Line - Complete Pick - MOD Balance Pick.
-- Example: total 2,000, complete 1,000, balance 200 => checker 800 (40%).
-- If Complete Pick is blank, it defaults to Total Order Line minus MOD Balance.
-- Fixed Remaining Time Calculator JavaScript error: the removed summary Shift Status element was still being updated, which stopped the script.
-- Current Time and Stop Time now need to be selected before results are shown; time changes recalculate.
-- Break remaining is in minutes; e.g. 150 minutes = 2 hours 30 minutes.
-- Stop tomorrow checkbox adds 24 hours; without it, a stop time earlier than current time means zero remaining time.
-- Dashboard cards and Block Overview colors remain consistent.
+This build removes the manual For Checking Line field.
+Complete Pick is automatic: Overall Order Line minus MOD Balance Pick Line.
+It removes obsolete JavaScript event listeners and references to removed fields that could stop startup rendering.
 
-Update:
-1. Extract ZIP in iPhone Files.
-2. Upload index.html to GitHub repository root, replacing old index.html.
-3. Commit changes, wait for Pages deployment, then reload site.
+Block Overview:
+- The four default rows (Picking - E/F/G/H) should render on load.
+- Total Order Line and Request HC are recalculated from those rows.
+
+Remaining Time:
+- Current Time remains a manual time picker; it is intentionally not auto-filled.
+- Select Current Time and Stop Time to calculate remaining time.
+- Enter remaining break minutes, available HC, and weighted lines per HC per hour.
+- For an overnight shift, enable “Stop time is tomorrow”.
+- If time is not selected, the calculator shows SET TIME rather than a misleading zero.
+
+Update steps on iPhone:
+1. Extract this ZIP in Files.
+2. In the GitHub repository, upload index.html to the repository root and replace the old file.
+3. Commit changes and wait for GitHub Pages deployment.
+4. Refresh the website. If the old version still appears, close the tab and reopen the Pages URL.
+
+The calculator remains manual-time based, as requested.
