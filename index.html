@@ -49,6 +49,53 @@
 #lineEditTable th:nth-child(3),#lineEditTable tfoot td:nth-child(3){width:30%}
 #lineEditTable tfoot td{white-space:nowrap;font-size:12px;padding:9px 3px}
 
+
+/* v15: compact mobile dashboard and checking card */
+@media(max-width:600px){
+  .shell{padding:6px 7px 12px}
+  .dash-card{padding:8px;margin-bottom:7px;border-radius:13px}
+  .section-title{gap:8px;margin-bottom:7px}
+  .section-title h2{font-size:17px;line-height:1.12}
+  .section-title p{font-size:10px;line-height:1.25;margin-top:2px}
+  .section-icon{width:31px;height:31px;border-radius:10px}
+  .section-icon svg{width:19px;height:19px}
+  .metric{padding:7px;gap:6px;border-radius:10px}
+  .metric .micon{width:30px;height:30px}
+  .metric .micon svg{width:17px;height:17px}
+  .metric .mlabel{font-size:9px;line-height:1.15}
+  .metric .value{font-size:19px;line-height:1.05;margin-top:2px}
+  .metric .hint{font-size:9px;line-height:1.15;margin-top:2px}
+  .tablewrap th{padding:7px 3px;font-size:10px}
+  .tablewrap td{padding:6px 3px;font-size:10px}
+  .tablewrap tfoot td{padding:7px 3px}
+  .status-metrics{gap:6px}
+  .status-metric{padding:7px;gap:5px}
+  .status-metric .sicon{width:27px;height:27px}
+  .status-metric .value{font-size:19px;margin:2px 0}
+  .field label{font-size:10px;margin-bottom:3px}
+  .field input,.field select{min-height:35px;padding:7px 8px;font-size:13px}
+  #forCheckingCard{padding:8px;margin-bottom:7px}
+  #forCheckingCard .section-title{margin-bottom:5px}
+  #forCheckingCard .section-title p{display:none}
+  #forCheckingCard .checking-metric{
+    min-height:0!important;display:grid;grid-template-columns:30px minmax(0,1fr);
+    grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:1px;
+    padding:8px 9px;border-radius:10px
+  }
+  #forCheckingCard .checking-metric .micon{grid-row:1 / span 2;width:28px;height:28px}
+  #forCheckingCard .checking-metric>div:last-child{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px}
+  #forCheckingCard .checking-metric .mlabel{font-size:10px}
+  #forCheckingCard .checking-metric .value{font-size:22px;margin:0}
+  #forCheckingCard .checking-metric .hint{grid-column:1 / -1;font-size:9px;margin-top:3px}
+  #modBalanceLine{min-height:36px}
+  .smallnote{font-size:10px;line-height:1.25;margin-top:5px}
+}
+@media(max-width:380px){
+  .section-title h2{font-size:16px}
+  .metric .value{font-size:17px}
+  #forCheckingCard .checking-metric .value{font-size:20px}
+}
+
 </style>
 </head>
 <body>
@@ -87,7 +134,7 @@
  </div>
  <div class="dash-card summary-card" id="forCheckingCard" style="border-color:#9fc9ff;background:linear-gradient(145deg,#f4faff,#e6f2ff)">
   <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/><path d="m8 2-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><h2>For Checking</h2><p>Total Balance Line − Balance Pick Line. Use this to check the difference.</p></div></div>
-  <div class="metric blue" style="min-height:76px"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg></div><div><div class="mlabel">For Checking Line</div><div class="value" id="forCheckingLine">0</div><div class="hint" id="forCheckingFormula">1,265 − 500</div></div></div>
+  <div class="metric blue checking-metric"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg></div><div><div class="mlabel">For Checking Line</div><div class="value" id="forCheckingLine">0</div><div class="hint" id="forCheckingFormula">1,265 − 500</div></div></div>
  </div>
  <div class="dash-card status-card">
   <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick = Overall Order Line minus the E, F, G and H current balance lines.</p></div></div>
