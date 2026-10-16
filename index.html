@@ -96,6 +96,25 @@
   #forCheckingCard .checking-metric .value{font-size:20px}
 }
 
+
+/* v17: inline local date/time in the existing Shift Summary heading; do not increase card height */
+.summary-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.summary-heading-copy{flex:1;min-width:0}
+.summary-heading-copy p{max-width:100%}
+.summary-clock{flex:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;text-align:right;white-space:nowrap;line-height:1.1;margin-left:auto;padding-left:4px}
+.summary-date{font-size:11px;font-weight:750;letter-spacing:.15px;color:#0875d8}
+.summary-time{font-size:16px;font-weight:900;letter-spacing:-.25px;color:#102b50;font-variant-numeric:tabular-nums}
+@media(max-width:600px){
+ .summary-heading{gap:7px;margin-bottom:7px;min-height:31px}
+ .summary-heading-copy{flex:1 1 auto;min-width:0}
+ .summary-heading-copy h2{font-size:15px;line-height:1.15}
+ .summary-heading-copy p{font-size:9px;line-height:1.15;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .summary-clock{gap:2px;padding-left:2px;max-width:37%}
+ .summary-date{font-size:9px;letter-spacing:0}
+ .summary-time{font-size:13px;letter-spacing:-.2px}
+}
+@media(max-width:360px){.summary-heading{gap:5px}.summary-heading-copy p{font-size:8px}.summary-date{font-size:8px}.summary-time{font-size:12px}}
+
 </style>
 </head>
 <body>
@@ -116,7 +135,7 @@
 </nav>
 <section class="panel active" id="summary">
  <div class="dash-card summary-card">
-  <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 19h4V9H3v10Zm7 0h4V4h-4v15Zm7 0h4V7h-4v12Z"/></svg></div><div><h2>Shift Summary</h2><p>Overall requirement, live order balance and estimated time-to-finish.</p></div></div>
+  <div class="section-title summary-heading"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 19h4V9H3v10Zm7 0h4V4h-4v15Zm7 0h4V7h-4v12Z"/></svg></div><div class="summary-heading-copy"><h2>Shift Summary</h2><p>Overall requirement, live order balance and estimated time-to-finish.</p></div><div class="summary-clock" aria-label="Current local date and time"><span class="summary-date" id="summaryDate">16 Oct 2026</span><strong class="summary-time" id="summaryTime">08:36 PM</strong></div></div>
   <div class="metrics">
    <div class="metric blue"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15H4V2h2Zm8 2v4h4M7 11h10v2H7zm0 4h10v2H7z"/></svg></div><div><div class="mlabel">Overall Order Line</div><div class="value" id="sumOrder">2,870</div></div></div>
    <div class="metric blue"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM1 20v-2c0-3 3.5-5 7-5s7 2 7 5v2H1Zm14-6c4 0 8 1.7 8 5v1h-6v-2c0-1.5-.7-2.9-2-4Z"/></svg></div><div><div class="mlabel">Overall Request HC</div><div class="value" id="sumHC">14</div></div></div>
@@ -133,14 +152,14 @@
   <div class="actions"><button class="btn secondary" data-goto="line">Edit Line → HC</button></div>
  </div>
  <div class="dash-card summary-card" id="forCheckingCard" style="border-color:#9fc9ff;background:linear-gradient(145deg,#f4faff,#e6f2ff)">
-  <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/><path d="m8 2-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><h2>For Checking</h2><p>Total Balance Line − Balance Pick Line. Use this to check the difference.</p></div></div>
+  <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/><path d="m8 2-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><h2>For Checking</h2><p>Total Balance Line − MOD Balance Pick Line. Use this to check the difference.</p></div></div>
   <div class="metric blue checking-metric"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg></div><div><div class="mlabel">For Checking Line</div><div class="value" id="forCheckingLine">0</div><div class="hint" id="forCheckingFormula">1,265 − 500</div></div></div>
  </div>
  <div class="dash-card status-card">
   <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick = Overall Order Line minus the E, F, G and H current balance lines.</p></div></div>
   <div class="status-metrics">
    <div class="status-metric"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Zm-1 14-4-4 1.5-1.5L11 13l4.5-4.5L17 10l-6 6Z"/></svg></div><div style="min-width:0"><strong>Complete Pick</strong><div class="value" id="completePick">1,070</div><small id="completePct">37.3% of order</small></div><div class="ring" id="completeRing" style="--pct:37.3%;background:conic-gradient(#009b69 37.3%,#bcebdc 0)"><span id="completeRingText">37.3%</span></div></div>
-   <div class="status-metric red"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div style="min-width:0"><strong>Balance Pick</strong><div class="value" id="statusBalance">1,800</div><small id="statusBalancePct">62.7% of order</small></div><div class="ring" id="statusBalanceRing" style="--pct:62.7%"><span id="statusBalanceRingText">62.7%</span></div></div>
+   <div class="status-metric red"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div style="min-width:0"><strong>MOD Balance Pick</strong><div class="value" id="statusBalance">1,800</div><small id="statusBalancePct">62.7% of order</small></div><div class="ring" id="statusBalanceRing" style="--pct:62.7%"><span id="statusBalanceRingText">62.7%</span></div></div>
   </div>
   <div class="field" style="margin-top:10px"><label for="modBalanceLine">MOD Balance Pick Line (manual, optional override)</label><input id="modBalanceLine" type="number" min="0" step="1" placeholder="Auto: total of E, F, G and H" inputmode="numeric"><p class="smallnote" style="margin-top:5px">Leave blank to use the automatic E–H balance total. Enter a MOD figure only when you need to override it.</p></div>
  </div>
@@ -278,7 +297,7 @@ function renderAll(){
  $('totalLine').textContent=fmt(c.lines);$('editTotalLine').textContent=fmt(c.lines);
  $('totalHC').textContent=fmt(c.totalHC);$('editTotalHC').textContent=fmt(c.totalHC);
  $('forCheckingLine').textContent=fmt(c.forChecking);
- $('forCheckingFormula').textContent=`${fmt(c.lines)} Total Balance Line − ${fmt(c.balance)} Balance Pick Line`;
+ $('forCheckingFormula').textContent=`${fmt(c.lines)} Total Balance Line − ${fmt(c.balance)} MOD Balance Pick Line`;
  $('blockRows').innerHTML=state.blocks.map((b,i)=>{const p=percent(b.line,c.lines);const hc=c.hcFor(b.line);const colors=['','green','amber','purple'];return `<tr><td>${b.name}</td><td>${fmt(b.line)}</td><td>${fmt(hc)}</td><td><div class="bar-cell"><span>${p.toFixed(1)}%</span><span class="bar ${colors[i%4]}"><i style="width:${p}%"></i></span></div></td></tr>`}).join('');
  state.blocks.forEach((b,i)=>{const el=$('hc_'+i);if(el)el.textContent=fmt(c.hcFor(b.line))});
  $('remainingTime').textContent=hoursText(c.mins);$('estimatedLines').textContent=fmt(c.timeLines);
@@ -319,6 +338,8 @@ async function copyDashboard(){
   clone.style.width='100%';clone.style.maxWidth='none';clone.style.margin='0';clone.style.padding='12px';
   clone.querySelectorAll('.panel').forEach(p=>{if(p.id!=='summary')p.remove();else p.classList.add('active')});
   clone.querySelectorAll('#copyImage,#copyNote,.time-card').forEach(el=>el.remove());
+  // Keep the Current Order Status cards in the image, but stop at the red line: exclude the MOD manual input row and its note.
+  clone.querySelectorAll('.status-card .field').forEach(el=>el.remove());
   clone.querySelectorAll('[data-goto]').forEach(el=>el.remove());
   // Prevent the screenshot from inheriting any narrow native-input layout from the time calculator.
   captureHost.appendChild(clone);document.body.appendChild(captureHost);
@@ -326,13 +347,25 @@ async function copyDashboard(){
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   if(!blob)throw new Error('Could not create PNG');
   if(navigator.clipboard&&window.ClipboardItem){
-   try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);note.textContent='Dashboard copied as an image. Remaining Time is excluded.'}
+   try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);note.textContent='Dashboard copied as an image. MOD input row and Remaining Time are excluded.'}
    catch(e){downloadBlob(blob);note.textContent='Image clipboard blocked. Dashboard PNG downloaded instead.'}
-  }else{downloadBlob(blob);note.textContent='Dashboard PNG downloaded. Remaining Time is excluded.'}
+  }else{downloadBlob(blob);note.textContent='Dashboard PNG downloaded. MOD input row and Remaining Time are excluded.'}
  }catch(e){note.textContent='Could not create image in this browser. Open the site in Safari and try again.'}
  finally{if(captureHost)captureHost.remove();btn.disabled=false;btn.innerHTML=old}
 }
 $('copyImage').addEventListener('click',copyDashboard);
+
+function updateSummaryClock(){
+ const now=new Date();
+ const dateEl=document.getElementById('summaryDate');
+ const timeEl=document.getElementById('summaryTime');
+ if(!dateEl||!timeEl)return;
+ dateEl.textContent=new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric'}).format(now);
+ timeEl.textContent=new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}).format(now);
+}
+updateSummaryClock();
+setInterval(updateSummaryClock,1000);
+
 restoreState();
 renderEditRows();renderAll();
 </script>
