@@ -81,9 +81,13 @@
   <div class="alert" id="timeAlert"><div class="alert-icon">!</div><div><strong id="alertTitle">Time may be short</strong><span id="alertText">1,800 balance lines · estimate 30h 0m · available 8h 0m.</span></div></div>
  </div>
  <div class="dash-card block-card">
-  <div class="section-title"><div class="section-icon i-green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div><h2>Overall Block Balance Invoice Line Status</h2><p>Shows current balance lines by block. Overall Order Line is entered separately.</p></div></div>
+  <div class="section-title"><div class="section-icon i-green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div><h2>Overall Block</h2><p>Shows current balance lines by block. Overall Order Line is entered separately.</p></div></div>
   <div class="tablewrap"><table><thead><tr><th style="width:25%">Block</th><th style="width:20%">Balance Line</th><th style="width:18%">Request HC</th><th style="width:37%">% of Total</th></tr></thead><tbody id="blockRows"></tbody><tfoot><tr><td>Total Balance Line</td><td id="totalLine">2,870</td><td id="totalHC">14</td><td>100%</td></tr></tfoot></table></div>
   <div class="actions"><button class="btn secondary" data-goto="line">Edit Line → HC</button></div>
+ </div>
+ <div class="dash-card summary-card" id="forCheckingCard" style="border-color:#9fc9ff;background:linear-gradient(145deg,#f4faff,#e6f2ff)">
+  <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/><path d="m8 2-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><h2>For Checking</h2><p>Total Balance Line − Balance Pick Line. Use this to check the difference.</p></div></div>
+  <div class="metric blue" style="min-height:76px"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg></div><div><div class="mlabel">For Checking Line</div><div class="value" id="forCheckingLine">0</div><div class="hint" id="forCheckingFormula">1,265 − 500</div></div></div>
  </div>
  <div class="dash-card status-card">
   <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick = Overall Order Line minus the E, F, G and H current balance lines.</p></div></div>
@@ -126,6 +130,8 @@
 <section class="panel" id="line">
  <div class="dash-card block-card"><div class="section-title"><div class="section-icon i-green">⇄</div><div><h2>Line → HC</h2><p>Enter the overall order total above. Use E, F, G and H for current order balance lines.</p></div></div>
   <div class="field"><label for="overallLine">Overall Order Line (total order)</label><input id="overallLine" type="number" min="0" step="1" value="2870" inputmode="numeric"></div>
+  <div class="field" style="margin-top:10px"><label for="overallHours">Overall Working Hours (for Overall Request HC only)</label><input id="overallHours" type="number" min="0" step="0.5" value="9" inputmode="decimal"></div>
+  <p class="smallnote">Overall Request HC is calculated independently from the E–H balance lines: Overall Order Line ÷ (Overall Working Hours × Weighted lines / HC / hour), rounded up.</p>
   <div class="tablewrap line-edit-wrap" style="margin-top:10px"><table id="lineEditTable"><colgroup><col style="width:33%"><col style="width:37%"><col style="width:30%"></colgroup><thead><tr><th>Block</th><th>Current Balance Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total Balance</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
   <div class="field" style="margin-top:10px"><label for="lineHours">Hours per person</label><input id="lineHours" type="number" min="0" step="0.5" value="10"></div>
   <div class="field" style="margin-top:10px"><label for="lineRate">Weighted lines / HC / hour</label><input id="lineRate" type="number" min="0" step="0.5" value="20"></div>
@@ -151,7 +157,7 @@ const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1});
 const val=id=>Math.max(0,Number($(id).value)||0);
 const STORAGE_KEY='hcLineCompletion.savedState.v1';
 const state={blocks:[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}]};
-const persistedInputIds=['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
+const persistedInputIds=['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','overallHours','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
 function saveState(){
  try{
   const inputs={};
@@ -184,10 +190,10 @@ function calc(){
  const balanceLines=state.blocks.reduce((s,b)=>s+b.line,0);
  const enteredTotal=$('overallLine').value.trim();
  const total=enteredTotal===''?0:val('overallLine');
- const rate=val('lineRate'), hrs=val('lineHours');
+ const rate=val('lineRate'), hrs=val('lineHours'), overallHrs=val('overallHours');
  const hcFor=line=>rate>0&&hrs>0?Math.ceil(line/(rate*hrs)):0;
  const totalHC=state.blocks.reduce((s,b)=>s+hcFor(b.line),0);
- const overallHC=hcFor(total);
+ const overallHC=rate>0&&overallHrs>0?Math.ceil(total/(rate*overallHrs)):0;
  const modOverride=$('modBalanceLine').value.trim();
  const balance=modOverride===''?balanceLines:val('modBalanceLine');
  const complete=Math.max(0,total-balance);
@@ -202,7 +208,8 @@ function calc(){
  }
  const active=val('activeHC'),timeLines=Math.floor(mins/60*active*val('rate'));
  const completeHours=active>0&&val('rate')>0?balance/(active*val('rate'))*60:0;
- return {lines:balanceLines,total,rate,hrs,hcFor,totalHC,overallHC,balance,complete,balanceP,completeP,mins,timeLines,active,completeHours};
+ const forChecking=balanceLines-balance;
+ return {lines:balanceLines,total,rate,hrs,overallHrs,hcFor,totalHC,overallHC,balance,complete,balanceP,completeP,forChecking,mins,timeLines,active,completeHours};
 }
 function renderAll(){
  const c=calc(),order=c.total;
@@ -223,6 +230,8 @@ function renderAll(){
  $('statusBalanceRing').style.setProperty('--pct',c.balanceP+'%');$('statusBalanceRingText').textContent=`${c.balanceP.toFixed(1)}%`;
  $('totalLine').textContent=fmt(c.lines);$('editTotalLine').textContent=fmt(c.lines);
  $('totalHC').textContent=fmt(c.totalHC);$('editTotalHC').textContent=fmt(c.totalHC);
+ $('forCheckingLine').textContent=fmt(c.forChecking);
+ $('forCheckingFormula').textContent=`${fmt(c.lines)} Total Balance Line − ${fmt(c.balance)} Balance Pick Line`;
  $('blockRows').innerHTML=state.blocks.map((b,i)=>{const p=percent(b.line,c.lines);const hc=c.hcFor(b.line);const colors=['','green','amber','purple'];return `<tr><td>${b.name}</td><td>${fmt(b.line)}</td><td>${fmt(hc)}</td><td><div class="bar-cell"><span>${p.toFixed(1)}%</span><span class="bar ${colors[i%4]}"><i style="width:${p}%"></i></span></div></td></tr>`}).join('');
  state.blocks.forEach((b,i)=>{const el=$('hc_'+i);if(el)el.textContent=fmt(c.hcFor(b.line))});
  $('remainingTime').textContent=hoursText(c.mins);$('estimatedLines').textContent=fmt(c.timeLines);
@@ -236,13 +245,13 @@ function renderAll(){
 }
 document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
 document.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-tab="${btn.dataset.goto}"]`).click()));
-['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
+['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','overallHours','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
 $('addBlock').addEventListener('click',()=>{state.blocks.push({name:`Picking - ${String.fromCharCode(69+state.blocks.length)}`,line:0});renderEditRows();renderAll()});
 $('resetBlocks').addEventListener('click',()=>{state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];renderEditRows();renderAll()});
 $('clearLine').addEventListener('click',()=>{state.blocks.forEach(b=>b.line=0);renderEditRows();renderAll()});
 $('clearTime').addEventListener('click',()=>{['currentTime','stopTime','breakMin','activeHC','rate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderAll()});
 $('clearHC').addEventListener('click',()=>{['hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');renderAll()});
-$('clearAll').addEventListener('click',()=>{if(confirm('Clear all calculator inputs?')){state.blocks.forEach(b=>b.line=0);['overallLine','modBalanceLine','currentTime','stopTime','breakMin','activeHC','rate','hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderEditRows();renderAll()}});
+$('clearAll').addEventListener('click',()=>{if(confirm('Clear all calculator inputs?')){state.blocks.forEach(b=>b.line=0);['overallLine','overallHours','modBalanceLine','currentTime','stopTime','breakMin','activeHC','rate','hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderEditRows();renderAll()}});
 async function copyDashboard(){
  const btn=$('copyImage'),note=$('copyNote'),old=btn.innerHTML;
  btn.disabled=true;btn.textContent='Preparing image…';
@@ -270,9 +279,9 @@ async function copyDashboard(){
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   if(!blob)throw new Error('Could not create PNG');
   if(navigator.clipboard&&window.ClipboardItem){
-   try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);note.textContent='Main dashboard copied as an image. Remaining Time is excluded.'}
-   catch(e){downloadBlob(blob);note.textContent='Image clipboard blocked. Main dashboard PNG downloaded instead.'}
-  }else{downloadBlob(blob);note.textContent='Main dashboard PNG downloaded. Remaining Time is excluded.'}
+   try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);note.textContent='Dashboard copied as an image. Remaining Time is excluded.'}
+   catch(e){downloadBlob(blob);note.textContent='Image clipboard blocked. Dashboard PNG downloaded instead.'}
+  }else{downloadBlob(blob);note.textContent='Dashboard PNG downloaded. Remaining Time is excluded.'}
  }catch(e){note.textContent='Could not create image in this browser. Open the site in Safari and try again.'}
  finally{if(captureHost)captureHost.remove();btn.disabled=false;btn.innerHTML=old}
 }
