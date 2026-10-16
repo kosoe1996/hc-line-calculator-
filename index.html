@@ -236,7 +236,7 @@ function renderAll(){
 }
 document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
 document.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-tab="${btn.dataset.goto}"]`).click()));
-['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
+['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
 $('addBlock').addEventListener('click',()=>{state.blocks.push({name:`Picking - ${String.fromCharCode(69+state.blocks.length)}`,line:0});renderEditRows();renderAll()});
 $('resetBlocks').addEventListener('click',()=>{state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];renderEditRows();renderAll()});
 $('clearLine').addEventListener('click',()=>{state.blocks.forEach(b=>b.line=0);renderEditRows();renderAll()});
