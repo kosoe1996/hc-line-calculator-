@@ -40,6 +40,15 @@
 }
 @media(max-width:360px){.metric{padding:6px;gap:4px}.metric .micon{width:23px;height:23px}.metric .micon svg{width:14px;height:14px}.metric .value{font-size:17px}.metric .ring{width:30px;height:30px}.hero h1{font-size:16px}.tab{font-size:9px}.status-metric .ring{width:29px;height:29px}}
 
+
+#editRows input{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;border:1px solid #d9e5f1;border-radius:7px;background:#fff;color:#183653;font:600 12px/1.2 inherit;height:34px;padding:6px 5px;text-align:center}
+#editRows td{padding:7px 5px;overflow:hidden;vertical-align:middle}
+#editRows td:first-child input{font-size:11px;font-weight:650}
+#lineEditTable th:nth-child(1),#lineEditTable tfoot td:nth-child(1){width:33%}
+#lineEditTable th:nth-child(2),#lineEditTable tfoot td:nth-child(2){width:37%}
+#lineEditTable th:nth-child(3),#lineEditTable tfoot td:nth-child(3){width:30%}
+#lineEditTable tfoot td{white-space:nowrap;font-size:12px;padding:9px 3px}
+
 </style>
 </head>
 <body>
@@ -117,7 +126,7 @@
 <section class="panel" id="line">
  <div class="dash-card block-card"><div class="section-title"><div class="section-icon i-green">⇄</div><div><h2>Line → HC</h2><p>Enter each block's order line. Request HC and totals update automatically.</p></div></div>
   <div class="field"><label for="overallLine">Overall Order Line (optional override)</label><input id="overallLine" type="number" min="0" step="1" placeholder="Auto total from blocks"></div>
-  <div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Block</th><th>Order Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
+  <div class="tablewrap line-edit-wrap" style="margin-top:10px"><table id="lineEditTable"><colgroup><col style="width:33%"><col style="width:37%"><col style="width:30%"></colgroup><thead><tr><th>Block</th><th>Order Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
   <div class="field" style="margin-top:10px"><label for="lineHours">Hours per person</label><input id="lineHours" type="number" min="0" step="0.5" value="10"></div>
   <div class="field" style="margin-top:10px"><label for="lineRate">Weighted lines / HC / hour</label><input id="lineRate" type="number" min="0" step="0.5" value="20"></div>
   <div class="actions"><button class="btn" id="addBlock">+ Add Block</button><button class="btn secondary" id="clearLine">Clear</button><button class="btn secondary" id="resetBlocks">Reset E–H</button></div>
@@ -140,11 +149,33 @@
 const $=id=>document.getElementById(id);
 const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1});
 const val=id=>Math.max(0,Number($(id).value)||0);
+const STORAGE_KEY='hcLineCompletion.savedState.v1';
 const state={blocks:[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}]};
+const persistedInputIds=['modBalance','currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
+function saveState(){
+ try{
+  const inputs={};
+  persistedInputIds.forEach(id=>{const el=$(id);if(el)inputs[id]=el.type==='checkbox'?el.checked:el.value});
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({inputs,blocks:state.blocks,savedAt:new Date().toISOString()}));
+ }catch(e){/* storage may be unavailable in private browsing */}
+}
+function restoreState(){
+ try{
+  const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;
+  const saved=JSON.parse(raw);
+  if(saved&&saved.inputs){
+   persistedInputIds.forEach(id=>{const el=$(id);if(el&&Object.prototype.hasOwnProperty.call(saved.inputs,id)){if(el.type==='checkbox')el.checked=!!saved.inputs[id];else el.value=saved.inputs[id]}});
+  }
+  if(Array.isArray(saved.blocks)&&saved.blocks.length){
+   state.blocks=saved.blocks.filter(b=>b&&typeof b.name==='string').map(b=>({name:b.name,line:Math.max(0,Number(b.line)||0)}));
+   if(!state.blocks.length)state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];
+  }
+ }catch(e){/* ignore corrupted saved data and use defaults */}
+}
 function hoursText(mins){mins=Math.max(0,Math.round(mins));return `${Math.floor(mins/60)}h ${mins%60}m`}
 function percent(n,total){return total>0?Math.min(100,n/total*100):0}
 function renderEditRows(){
- $('editRows').innerHTML=state.blocks.map((b,i)=>`<tr><td><input aria-label="Block name" data-name="${i}" value="${b.name.replace(/"/g,'&quot;')}" style="padding:8px 3px;font-size:11px;text-align:center"></td><td><input aria-label="Order line" data-line="${i}" type="number" min="0" step="1" value="${b.line}" style="padding:8px 3px;text-align:center"></td><td id="hc_${i}">0</td></tr>`).join('');
+ $('editRows').innerHTML=state.blocks.map((b,i)=>`<tr><td><input aria-label="Block name" data-name="${i}" value="${b.name.replace(/"/g,'&quot;')}" class="block-name-input"></td><td><input aria-label="Order line" data-line="${i}" type="number" min="0" step="1" value="${b.line}" class="block-line-input"></td><td id="hc_${i}">0</td></tr>`).join('');
  $('editRows').querySelectorAll('[data-name]').forEach(el=>el.addEventListener('input',e=>{state.blocks[+e.target.dataset.name].name=e.target.value;renderAll()}));
  $('editRows').querySelectorAll('[data-line]').forEach(el=>el.addEventListener('input',e=>{state.blocks[+e.target.dataset.line].line=Math.max(0,Number(e.target.value)||0);renderAll()}));
 }
@@ -197,6 +228,7 @@ function renderAll(){
  $('timeAlert').classList.toggle('hidden',!(warn||c.balance>0&&c.mins===0));
  $('alertTitle').textContent=warn?'Time may be short':c.balance>0&&c.mins===0?'Set current and stop time':'';
  $('hcCapacity').textContent=fmt(val('hcCount')*val('hcHours')*val('hcRate'));
+ saveState();
 }
 document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
 document.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-tab="${btn.dataset.goto}"]`).click()));
@@ -241,6 +273,7 @@ async function copyDashboard(){
  finally{if(captureHost)captureHost.remove();btn.disabled=false;btn.innerHTML=old}
 }
 $('copyImage').addEventListener('click',copyDashboard);
+restoreState();
 renderEditRows();renderAll();
 </script>
 </body></html>
