@@ -81,17 +81,16 @@
   <div class="alert" id="timeAlert"><div class="alert-icon">!</div><div><strong id="alertTitle">Time may be short</strong><span id="alertText">1,800 balance lines · estimate 30h 0m · available 8h 0m.</span></div></div>
  </div>
  <div class="dash-card block-card">
-  <div class="section-title"><div class="section-icon i-green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div><h2>Overall Block</h2><p>Order Line and Request HC are automatically totalled from the E, F, G and H blocks.</p></div></div>
-  <div class="tablewrap"><table><thead><tr><th style="width:25%">Block</th><th style="width:20%">Order Line</th><th style="width:18%">Request HC</th><th style="width:37%">% of Total</th></tr></thead><tbody id="blockRows"></tbody><tfoot><tr><td>Total Order Line</td><td id="totalLine">2,870</td><td id="totalHC">14</td><td>100%</td></tr></tfoot></table></div>
+  <div class="section-title"><div class="section-icon i-green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div><h2>Overall Block</h2><p>Shows current balance lines by block. Overall Order Line is entered separately.</p></div></div>
+  <div class="tablewrap"><table><thead><tr><th style="width:25%">Block</th><th style="width:20%">Balance Line</th><th style="width:18%">Request HC</th><th style="width:37%">% of Total</th></tr></thead><tbody id="blockRows"></tbody><tfoot><tr><td>Total Balance Line</td><td id="totalLine">2,870</td><td id="totalHC">14</td><td>100%</td></tr></tfoot></table></div>
   <div class="actions"><button class="btn secondary" data-goto="line">Edit Line → HC</button></div>
  </div>
  <div class="dash-card status-card">
-  <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick is automatic: Overall Order Line minus MOD Balance Pick Line.</p></div></div>
+  <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick = Overall Order Line minus the E, F, G and H current balance lines.</p></div></div>
   <div class="status-metrics">
    <div class="status-metric"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Zm-1 14-4-4 1.5-1.5L11 13l4.5-4.5L17 10l-6 6Z"/></svg></div><div style="min-width:0"><strong>Complete Pick</strong><div class="value" id="completePick">1,070</div><small id="completePct">37.3% of order</small></div><div class="ring" id="completeRing" style="--pct:37.3%;background:conic-gradient(#009b69 37.3%,#bcebdc 0)"><span id="completeRingText">37.3%</span></div></div>
    <div class="status-metric red"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div style="min-width:0"><strong>Balance Pick</strong><div class="value" id="statusBalance">1,800</div><small id="statusBalancePct">62.7% of order</small></div><div class="ring" id="statusBalanceRing" style="--pct:62.7%"><span id="statusBalanceRingText">62.7%</span></div></div>
   </div>
-  <div class="field" style="margin-top:10px"><label for="modBalance">MOD Balance Pick Line (manual)</label><input id="modBalance" type="number" min="0" step="1" value="1800" inputmode="numeric"></div>
  </div>
  <button class="btn copybtn" id="copyImage"><svg style="width:22px;height:22px;vertical-align:middle;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3"/></svg>Copy as Image</button>
  <p class="smallnote" id="copyNote">Copies the dashboard as an image when supported by your browser. If image clipboard access is blocked, a PNG download will be offered.</p>
@@ -124,9 +123,9 @@
  </div>
 </section>
 <section class="panel" id="line">
- <div class="dash-card block-card"><div class="section-title"><div class="section-icon i-green">⇄</div><div><h2>Line → HC</h2><p>Enter each block's order line. Request HC and totals update automatically.</p></div></div>
-  <div class="field"><label for="overallLine">Overall Order Line (optional override)</label><input id="overallLine" type="number" min="0" step="1" placeholder="Auto total from blocks"></div>
-  <div class="tablewrap line-edit-wrap" style="margin-top:10px"><table id="lineEditTable"><colgroup><col style="width:33%"><col style="width:37%"><col style="width:30%"></colgroup><thead><tr><th>Block</th><th>Order Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
+ <div class="dash-card block-card"><div class="section-title"><div class="section-icon i-green">⇄</div><div><h2>Line → HC</h2><p>Enter the overall order total above. Use E, F, G and H for current order balance lines.</p></div></div>
+  <div class="field"><label for="overallLine">Overall Order Line (total order)</label><input id="overallLine" type="number" min="0" step="1" value="2870" inputmode="numeric"></div>
+  <div class="tablewrap line-edit-wrap" style="margin-top:10px"><table id="lineEditTable"><colgroup><col style="width:33%"><col style="width:37%"><col style="width:30%"></colgroup><thead><tr><th>Block</th><th>Current Balance Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total Balance</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
   <div class="field" style="margin-top:10px"><label for="lineHours">Hours per person</label><input id="lineHours" type="number" min="0" step="0.5" value="10"></div>
   <div class="field" style="margin-top:10px"><label for="lineRate">Weighted lines / HC / hour</label><input id="lineRate" type="number" min="0" step="0.5" value="20"></div>
   <div class="actions"><button class="btn" id="addBlock">+ Add Block</button><button class="btn secondary" id="clearLine">Clear</button><button class="btn secondary" id="resetBlocks">Reset E–H</button></div>
@@ -151,7 +150,7 @@ const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1});
 const val=id=>Math.max(0,Number($(id).value)||0);
 const STORAGE_KEY='hcLineCompletion.savedState.v1';
 const state={blocks:[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}]};
-const persistedInputIds=['modBalance','currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
+const persistedInputIds=['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
 function saveState(){
  try{
   const inputs={};
@@ -170,6 +169,7 @@ function restoreState(){
    state.blocks=saved.blocks.filter(b=>b&&typeof b.name==='string').map(b=>({name:b.name,line:Math.max(0,Number(b.line)||0)}));
    if(!state.blocks.length)state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];
   }
+  if(!$('overallLine').value.trim())$('overallLine').value=String(state.blocks.reduce((sum,b)=>sum+b.line,0));
  }catch(e){/* ignore corrupted saved data and use defaults */}
 }
 function hoursText(mins){mins=Math.max(0,Math.round(mins));return `${Math.floor(mins/60)}h ${mins%60}m`}
@@ -180,13 +180,14 @@ function renderEditRows(){
  $('editRows').querySelectorAll('[data-line]').forEach(el=>el.addEventListener('input',e=>{state.blocks[+e.target.dataset.line].line=Math.max(0,Number(e.target.value)||0);renderAll()}));
 }
 function calc(){
- const lines=state.blocks.reduce((s,b)=>s+b.line,0);
- const override=$('overallLine').value.trim();
- const total=override===''?lines:val('overallLine');
+ const balanceLines=state.blocks.reduce((s,b)=>s+b.line,0);
+ const enteredTotal=$('overallLine').value.trim();
+ const total=enteredTotal===''?0:val('overallLine');
  const rate=val('lineRate'), hrs=val('lineHours');
  const hcFor=line=>rate>0&&hrs>0?Math.ceil(line/(rate*hrs)):0;
  const totalHC=state.blocks.reduce((s,b)=>s+hcFor(b.line),0);
- const balance=Math.min(total,val('modBalance'));
+ const overallHC=hcFor(total);
+ const balance=balanceLines;
  const complete=Math.max(0,total-balance);
  const balanceP=percent(balance,total),completeP=percent(complete,total);
  const currentTime=$('currentTime').value,stopTime=$('stopTime').value;
@@ -198,13 +199,14 @@ function calc(){
   mins=Math.max(0,end-start-val('breakMin'));
  }
  const active=val('activeHC'),timeLines=Math.floor(mins/60*active*val('rate'));
- return {lines,total,rate,hrs,hcFor,totalHC,balance,complete,balanceP,completeP,mins,timeLines,active};
+ const completeHours=active>0&&val('rate')>0?balance/(active*val('rate'))*60:0;
+ return {lines:balanceLines,total,rate,hrs,hcFor,totalHC,overallHC,balance,complete,balanceP,completeP,mins,timeLines,active,completeHours};
 }
 function renderAll(){
  const c=calc(),order=c.total;
- $('sumOrder').textContent=fmt(order);$('sumHC').textContent=fmt(c.totalHC);
+ $('sumOrder').textContent=fmt(order);$('sumHC').textContent=fmt(c.overallHC);
  $('sumBalance').textContent=fmt(c.balance);$('sumActiveHC').textContent=fmt(c.active);
- $('sumCompleteHours').textContent=c.active>0&&c.rate>0?hoursText(c.balance/(c.active*c.rate)*60):'—';
+ $('sumCompleteHours').textContent=c.active>0&&val('rate')>0?hoursText(c.completeHours):'—';
  $('sumBalanceHours').textContent=hoursText(c.mins);
  $('balancePct').innerHTML=`${c.balanceP.toFixed(1)}%<br><small>of order</small>`;
  $('balanceRing').style.setProperty('--pct',c.balanceP+'%');
@@ -232,13 +234,13 @@ function renderAll(){
 }
 document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
 document.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-tab="${btn.dataset.goto}"]`).click()));
-['modBalance','currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
+['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
 $('addBlock').addEventListener('click',()=>{state.blocks.push({name:`Picking - ${String.fromCharCode(69+state.blocks.length)}`,line:0});renderEditRows();renderAll()});
-$('resetBlocks').addEventListener('click',()=>{state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];$('overallLine').value='';renderEditRows();renderAll()});
-$('clearLine').addEventListener('click',()=>{state.blocks.forEach(b=>b.line=0);$('overallLine').value='';renderEditRows();renderAll()});
+$('resetBlocks').addEventListener('click',()=>{state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];renderEditRows();renderAll()});
+$('clearLine').addEventListener('click',()=>{state.blocks.forEach(b=>b.line=0);renderEditRows();renderAll()});
 $('clearTime').addEventListener('click',()=>{['currentTime','stopTime','breakMin','activeHC','rate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderAll()});
 $('clearHC').addEventListener('click',()=>{['hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');renderAll()});
-$('clearAll').addEventListener('click',()=>{if(confirm('Clear all calculator inputs?')){state.blocks.forEach(b=>b.line=0);['overallLine','modBalance','currentTime','stopTime','breakMin','activeHC','rate','hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderEditRows();renderAll()}});
+$('clearAll').addEventListener('click',()=>{if(confirm('Clear all calculator inputs?')){state.blocks.forEach(b=>b.line=0);['overallLine','currentTime','stopTime','breakMin','activeHC','rate','hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderEditRows();renderAll()}});
 async function copyDashboard(){
  const btn=$('copyImage'),note=$('copyNote'),old=btn.innerHTML;
  btn.disabled=true;btn.textContent='Preparing image…';
