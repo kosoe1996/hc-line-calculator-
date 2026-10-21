@@ -115,6 +115,41 @@
 }
 @media(max-width:360px){.summary-heading{gap:5px}.summary-heading-copy p{font-size:8px}.summary-date{font-size:8px}.summary-time{font-size:12px}}
 
+
+/* Card edge cleanup: consistent backgrounds, clean rounded borders, no edge bleed */
+.dash-card{
+  background-color:#f0f7ff;
+  background-image:none;
+  background-clip:padding-box;
+  background-repeat:no-repeat;
+  overflow:hidden;
+  isolation:isolate;
+}
+.dash-card.summary-card{
+  background-color:#edf7ff;
+  background-image:none;
+}
+.dash-card.block-card{
+  background-color:#eafaf7;
+  background-image:none;
+}
+.dash-card.status-card{
+  background-color:#f5f0ff;
+  background-image:none;
+}
+.dash-card.time-card{
+  background-color:#fff6e8;
+  background-image:none;
+}
+#forCheckingCard{
+  background-color:#edf7ff!important;
+  background-image:none!important;
+  overflow:hidden;
+}
+.metric,.status-metric,.alert,.tablewrap{
+  background-clip:padding-box;
+}
+
 </style>
 </head>
 <body>
