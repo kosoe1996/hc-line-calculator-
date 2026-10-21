@@ -271,8 +271,10 @@ function calc(){
  const totalHC=state.blocks.reduce((s,b)=>s+hcFor(b.line),0);
  const overallHC=rate>0&&overallHrs>0?Math.ceil(total/(rate*overallHrs)):0;
  const modOverride=$('modBalanceLine').value.trim();
- const balance=chosen?chosen.line:(modOverride===''?allBalanceLines:val('modBalanceLine'));
- const displayLines=chosen?chosen.line:allBalanceLines;
+ const referenceLines=chosen?chosen.line:allBalanceLines;
+ // A manually entered MOD balance overrides the automatic balance, even while a block filter is active.
+ const balance=modOverride===''?referenceLines:val('modBalanceLine');
+ const displayLines=referenceLines;
  const displayHC=chosen?hcFor(chosen.line):totalHC;
  const complete=Math.max(0,total-balance);
  const balanceP=percent(balance,total),completeP=percent(complete,total);
@@ -286,7 +288,7 @@ function calc(){
  }
  const active=val('activeHC'),timeLines=Math.floor(mins/60*active*val('rate'));
  const completeHours=active>0&&val('rate')>0?balance/(active*val('rate'))*60:0;
- const forChecking=chosen?null:allBalanceLines-balance;
+ const forChecking=referenceLines-balance;
  return {lines:allBalanceLines,displayLines,displayHC,chosen,total,rate,hrs,overallHrs,hcFor,totalHC,overallHC,balance,complete,balanceP,completeP,forChecking,mins,timeLines,active,completeHours};
 }
 function renderAll(){
@@ -301,7 +303,9 @@ function renderAll(){
  $('balanceMetric').style.background=c.balance>0?'':'linear-gradient(145deg,#f1fffa,#d8f8ed)';
  $('balanceMetric').style.borderColor=c.balance>0?'':'#9fe5cf';
  $('balanceMetric').querySelector('.value').style.color=c.balance>0?'':'#00895e';
- $('balanceMetric').querySelector('.micon').style.color=c.balance>0?'':'#00895e';
+ $('balanceMetric').querySelector('.micon').style.color=c.balance>0?'#cb1e27':'#00895e';
+ $('balanceMetric').querySelector('.micon').style.visibility='visible';
+ $('balanceMetric').querySelector('.micon').querySelector('svg').style.display='block';
  $('completePick').textContent=fmt(c.complete);$('completePct').textContent=`${c.completeP.toFixed(1)}% of order`;
  $('statusBalance').textContent=fmt(c.balance);$('statusBalancePct').textContent=`${c.balanceP.toFixed(1)}% of order`;
  $('completeRing').style.background=`conic-gradient(#009b69 ${c.completeP}%,#bcebdc 0)`;$('completeRingText').textContent=`${c.completeP.toFixed(1)}%`;
@@ -311,7 +315,7 @@ function renderAll(){
  $('totalLabel').textContent=c.chosen?`${c.chosen.name} Balance`: 'Total Balance Line';
  $('totalPct').textContent=c.chosen?`${percent(c.chosen.line,c.lines).toFixed(1)}%`:'100%';
  $('forCheckingLine').textContent=c.forChecking===null?'—':fmt(c.forChecking);
- $('forCheckingFormula').textContent=c.chosen?'Select All Blocks to compare total balance with the MOD balance pick line.':`${fmt(c.lines)} Total Balance Line − ${fmt(c.balance)} MOD Balance Pick Line`;
+ $('forCheckingFormula').textContent=`${fmt(c.displayLines)} ${c.chosen?c.chosen.name+' Balance Line':'Total Balance Line'} − ${fmt(c.balance)} MOD Balance Pick Line`;
  const rows=c.chosen?state.blocks.filter(b=>b===c.chosen):state.blocks;
  $('blockRows').innerHTML=rows.map((b)=>{const p=percent(b.line,c.lines);const hc=c.hcFor(b.line);const originalIndex=state.blocks.indexOf(b);const colors=['','green','amber','purple'];return `<tr><td>${b.name}</td><td>${fmt(b.line)}</td><td>${fmt(hc)}</td><td><div class="bar-cell"><span>${p.toFixed(1)}%</span><span class="bar ${colors[originalIndex%4]}"><i style="width:${p}%"></i></span></div></td></tr>`}).join('');
  state.blocks.forEach((b,i)=>{const el=$('hc_'+i);if(el)el.textContent=fmt(c.hcFor(b.line))});
