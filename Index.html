@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b4e91">
+<title>HC / Line Completion</title>
+<style>
+:root{--navy:#073766;--blue:#1686ed;--blue2:#0864c7;--bg:#f2f7ff;--ink:#102b50;--muted:#62758e;--line:#cfe0f4;--green:#07855c;--red:#d5212b;--amber:#df790b;--purple:#6744df}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#e8f3ff,#f6f8ff 45%,#eef2ff);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:14px}
+.shell{width:min(100%,940px);margin:0 auto;padding:12px 12px 24px}
+.hero{position:relative;overflow:hidden;border-radius:19px;background:linear-gradient(115deg,#07315f,#087bd8 72%,#37a9ff);color:#fff;padding:17px 18px 16px;box-shadow:0 9px 22px #07529d35,inset 0 1px 0 #ffffff55}
+.hero:after{content:"";position:absolute;width:190px;height:190px;right:-55px;top:-95px;border-radius:50%;background:#ffffff12}
+.hero-top{display:flex;align-items:center;gap:12px}.brand-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(145deg,#36b9ff,#0870d5);box-shadow:0 4px 12px #001f4e55;flex:none}.brand-icon svg{width:29px;height:29px}.eyebrow{font-size:11px;letter-spacing:1.5px;opacity:.9}.hero h1{font-size:25px;line-height:1.08;margin:5px 0 0;font-weight:850;letter-spacing:-.5px}.hero p{margin:10px 0 0;opacity:.94;font-size:14px;line-height:1.35}.hero-art{margin-left:auto;display:flex;align-items:center;gap:8px;color:#cceaff}.hero-art svg{width:54px;height:54px;filter:drop-shadow(0 4px 4px #001f4e55)}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:11px 0}.tab{border:1px solid #d4e4f6;border-radius:12px;background:linear-gradient(#fff,#f1f6ff);color:#0c4d91;padding:11px 4px;font-size:12px;font-weight:800;box-shadow:0 3px 7px #133d6912;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}.tab svg{width:16px;height:16px}.tab.active{color:white;background:linear-gradient(145deg,#1ba0ff,#0866d0);border-color:#55b7ff;box-shadow:0 5px 12px #0875d544}
+.panel{display:none}.panel.active{display:block}.dash-card{border-radius:18px;padding:13px;margin-bottom:10px;border:1px solid #c9def6;box-shadow:0 6px 15px #174d8314,inset 0 1px 0 #fff;background:linear-gradient(145deg,#fafdff,#eaf5ff)}.summary-card{background:linear-gradient(145deg,#f4fbff,#e7f4ff);border-color:#b9dcff}.block-card{background:linear-gradient(145deg,#f2fffc,#e5f7f7);border-color:#a9e5dd}.status-card{background:linear-gradient(145deg,#fbf8ff,#f0eaff);border-color:#d8caff}.time-card{background:linear-gradient(145deg,#fffaf0,#fff0d9);border-color:#ffd18a}
+.section-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}.section-icon{width:39px;height:39px;border-radius:12px;display:grid;place-items:center;color:white;flex:none;box-shadow:0 4px 9px #0a46852b}.section-icon svg{width:24px;height:24px}.i-blue{background:linear-gradient(145deg,#43c6ff,#0876e4)}.i-green{background:linear-gradient(145deg,#23d59d,#009a70)}.i-purple{background:linear-gradient(145deg,#a37aff,#6135dd)}.i-amber{background:linear-gradient(145deg,#ffc247,#f28b00)}.section-title h2{margin:0;font-size:20px;line-height:1.15;font-weight:850;letter-spacing:-.35px}.section-title p{margin:3px 0 0;color:#315574;font-size:12px;line-height:1.35}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{display:flex;align-items:center;gap:10px;min-width:0;padding:10px;border-radius:14px;border:1px solid #b8dcff;background:linear-gradient(145deg,#fff,#e2f2ff);box-shadow:0 3px 8px #164a7a0d}.metric .micon{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#d8efff;color:#0878dc;flex:none}.micon svg{width:25px;height:25px}.metric .mlabel{font-size:11px;font-weight:750;line-height:1.25;color:#15466e}.metric .value{font-size:26px;font-weight:900;line-height:1.08;margin-top:4px;letter-spacing:-.5px;overflow-wrap:anywhere}.metric .hint{font-size:11px;margin-top:4px;line-height:1.25;color:#315574}.metric.blue .value,.metric.blue .micon{color:#0875d8}.metric.green{background:linear-gradient(145deg,#f1fffa,#d8f8ed);border-color:#9fe5cf}.metric.green .value,.metric.green .micon{color:#00895e}.metric.green .micon{background:#c9f2e5}.metric.red{background:linear-gradient(145deg,#fff5f5,#ffe3e4);border-color:#ff9fa3}.metric.red .value,.metric.red .mlabel,.metric.red .micon{color:#cb1e27}.metric.red .micon{background:#ffd2d5}.metric.amber{background:linear-gradient(145deg,#fffaf1,#ffebce);border-color:#ffc66e}.metric.amber .value,.metric.amber .mlabel,.metric.amber .micon{color:#a84c00}.metric.amber .micon{background:#ffe0ae}.metric.purple{background:linear-gradient(145deg,#faf7ff,#e9e0ff);border-color:#c8b6ff}.metric.purple .value,.metric.purple .micon{color:#6940d8}.ring{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(var(--red) var(--pct,0%),#f6b7ba 0);position:relative}.ring:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff7f7}.ring span{position:relative;font-size:12px;font-weight:900;color:#b51e25;text-align:center;line-height:1.05}.ring small{font-size:8px;font-weight:650}
+.alert{display:flex;align-items:center;gap:10px;margin-top:9px;padding:10px 12px;border-radius:12px;background:linear-gradient(100deg,#fff0f0,#ffe6e8);border:1px solid #ffb4b7;color:#b51d25;box-shadow:0 3px 8px #a20c1510}.alert .alert-icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#ee3038;color:white;font-size:20px;font-weight:900;flex:none}.alert strong{display:block;font-size:13px}.alert span{display:block;font-size:12px;margin-top:3px;line-height:1.35}
+.tablewrap{border-radius:13px;overflow:hidden;border:1px solid #b9d6f0;background:#fff;box-shadow:0 4px 9px #174d8312}table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12px}th{background:linear-gradient(100deg,#1688ed,#0764c4);color:white;padding:10px 5px;font-weight:850}td{padding:8px 4px;text-align:center;border-top:1px solid #d6e4f2;color:#183653;overflow-wrap:anywhere}tbody tr:nth-child(even){background:#f3f8ff}tfoot td{background:linear-gradient(100deg,#075aa6,#063b70);color:white;font-weight:900;border-color:#2e73b1;padding:9px 4px}.bar-cell{display:flex;align-items:center;gap:5px}.bar{height:10px;flex:1;min-width:15px;border-radius:8px;background:#d8e2ef;overflow:hidden}.bar i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,#42baff,#1686ed)}.bar.green i{background:linear-gradient(90deg,#9ae6cb,#38b98e)}.bar.amber i{background:linear-gradient(90deg,#ffd87d,#f9a52d)}.bar.purple i{background:linear-gradient(90deg,#b6a1ff,#8154ee)}
+.status-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.status-metric{display:flex;align-items:center;gap:9px;padding:10px;border-radius:14px;background:linear-gradient(145deg,#f0fff8,#ddf8eb);border:1px solid #a8e8d0;min-width:0}.status-metric.red{background:linear-gradient(145deg,#fff5f5,#ffe5e6);border-color:#ffadb0}.status-metric .sicon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#c9f3e3;color:#008c5f;flex:none}.status-metric.red .sicon{background:#ffd3d5;color:#d21f2a}.sicon svg{width:23px;height:23px}.status-metric strong{display:block;font-size:12px;color:#08724f}.status-metric.red strong{color:#c91f29}.status-metric .value{font-size:26px;line-height:1.1;font-weight:900;margin:4px 0}.status-metric small{font-size:11px;color:#426b6b}.status-metric .ring{margin-left:auto;width:50px;height:50px}
+.formgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;width:100%;min-width:0}.formgrid>.field{min-width:0;width:100%;max-width:100%}.field{min-width:0}.field label{display:block;font-size:11px;font-weight:800;margin:0 0 5px;color:#38516c}.field input,.field select{display:block;width:100%;min-width:0;max-width:100%;border:1px solid #c6d9ec;border-radius:10px;padding:10px 8px;background:#fff;color:#173756;font:inherit;font-size:13px;box-shadow:inset 0 1px 2px #0e47700b}.time-results{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.time-result{padding:10px;border-radius:12px;border:1px solid #a9e5cf;background:linear-gradient(120deg,#e9fff6,#d5f7e9);display:flex;gap:10px;align-items:center}.time-result.blue{border-color:#a9d8ff;background:linear-gradient(120deg,#f0f9ff,#deefff)}.time-result svg{width:26px;height:26px;color:#008e61;flex:none}.time-result.blue svg{color:#087be0}.time-result small{display:block;font-size:11px;color:#315574}.time-result strong{display:block;font-size:23px;line-height:1.15;margin-top:3px;color:#08734e}.time-result.blue strong{color:#075dc0}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btn{border:0;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:850;color:#fff;background:linear-gradient(100deg,#168df4,#075ec8);box-shadow:0 5px 12px #0a6dc33b;cursor:pointer}.btn.secondary{background:linear-gradient(#f2f6fc,#e2eaf5);color:#25445f;box-shadow:none;border:1px solid #d3e1f1}.copybtn{width:100%;font-size:16px;padding:15px;background:linear-gradient(100deg,#159cff,#0660d0);border-radius:14px;margin-top:0}.smallnote{font-size:12px;color:var(--muted);line-height:1.4;margin:9px 0 0}.hidden{display:none!important}
+@media(min-width:680px){.shell{padding:20px}.hero{padding:22px 25px}.hero h1{font-size:29px}.dash-card{padding:17px;margin-bottom:13px}.metric{padding:12px}.metric .value{font-size:30px}.tablewrap table{font-size:14px}th,td{padding:11px 8px}}
+@media(max-width:390px){.shell{padding:8px}.hero{padding:14px}.hero h1{font-size:22px}.hero-art svg{width:43px;height:43px}.brand-icon{width:42px;height:42px}.tabs{gap:5px}.tab{font-size:11px;padding:10px 2px}.dash-card{padding:10px;border-radius:15px}.section-title h2{font-size:18px}.section-icon{width:34px;height:34px}.metric{padding:8px;gap:7px}.metric .micon{width:36px;height:36px}.metric .micon svg{width:21px;height:21px}.metric .value{font-size:22px}.ring{width:44px;height:44px}.ring:before{inset:6px}.status-metric{padding:8px;gap:6px}.status-metric .sicon{width:31px;height:31px}.status-metric .value{font-size:22px}.status-metric .ring{width:40px;height:40px}.formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.formgrid .field:last-child{grid-column:span 2}.time-result{padding:8px;gap:6px}.time-result strong{font-size:20px}table{font-size:11px}th{padding:9px 3px}td{padding:7px 2px}}
+
+/* v6 compact professional mobile dashboard */
+@media (max-width: 600px){
+ body{font-size:12px}
+ .shell{width:100%;padding:7px 8px 16px}
+ .hero{padding:11px 12px;border-radius:15px;box-shadow:0 5px 12px #07529d2b}
+ .hero-top{gap:8px}.brand-icon{width:34px;height:34px;border-radius:10px}.brand-icon svg{width:21px;height:21px}
+ .eyebrow{font-size:8px;letter-spacing:1px}.hero h1{font-size:18px;line-height:1.12;margin-top:3px;letter-spacing:-.25px}.hero p{font-size:11px;margin-top:5px;line-height:1.25}.hero-art{gap:3px}.hero-art svg{width:33px;height:33px}
+ .tabs{gap:5px;margin:7px 0}.tab{padding:8px 2px;border-radius:9px;font-size:10px;gap:3px}.tab svg{width:12px;height:12px}
+ .dash-card{padding:9px;margin-bottom:7px;border-radius:13px;box-shadow:0 3px 8px #174d8310,inset 0 1px 0 #fff}
+ .section-title{gap:7px;margin-bottom:7px}.section-icon{width:29px;height:29px;border-radius:9px;box-shadow:0 2px 5px #0a468520}.section-icon svg{width:18px;height:18px}.section-title h2{font-size:15px;line-height:1.15;letter-spacing:-.2px}.section-title p{font-size:10px;line-height:1.25;margin-top:2px}
+ .metrics{gap:6px}.metric{padding:7px;gap:6px;border-radius:10px}.metric .micon{width:28px;height:28px}.micon svg{width:16px;height:16px}.metric .mlabel{font-size:9px;line-height:1.2}.metric .value{font-size:19px;line-height:1.05;margin-top:3px;letter-spacing:-.2px;white-space:nowrap;overflow-wrap:normal}.metric .hint{font-size:9px;margin-top:2px;line-height:1.2}.ring{width:36px;height:36px}.ring:before{inset:5px}.ring span{font-size:9px}.ring small{font-size:6px}
+ .alert{gap:7px;margin-top:6px;padding:7px 8px;border-radius:9px}.alert .alert-icon{width:22px;height:22px;font-size:15px}.alert strong{font-size:10px}.alert span{font-size:9px;margin-top:2px;line-height:1.25}
+ .tablewrap{border-radius:10px;box-shadow:0 2px 5px #174d8310}table{font-size:10px;border-spacing:0}th{padding:8px 4px;font-size:10px;line-height:1.2;vertical-align:middle}td{padding:7px 4px;line-height:1.2;vertical-align:middle}tfoot td{padding:7px 3px}.bar-cell{gap:3px}.bar{height:6px;min-width:10px}
+ .status-metrics{gap:6px}.status-metric{padding:7px;gap:5px;border-radius:10px}.status-metric .sicon{width:26px;height:26px}.sicon svg{width:15px;height:15px}.status-metric strong{font-size:10px;line-height:1.15}.status-metric .value{font-size:19px;line-height:1.05;margin:3px 0;white-space:nowrap}.status-metric small{font-size:9px}.status-metric .ring{width:34px;height:34px}
+ .formgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;min-width:0}.time-card .formgrid>.field{width:100%;min-width:0;max-width:100%;overflow:hidden}.time-card input[type="time"]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-width:0;max-width:100%;height:38px;padding:7px 8px;font-size:13px;box-sizing:border-box}.time-card .formgrid .field:last-child{grid-column:1 / -1}.time-card .formgrid .field label{min-height:2.25em;display:flex;align-items:flex-end;font-size:10px;line-height:1.2;margin-bottom:4px}.field label{font-size:10px;margin-bottom:4px;line-height:1.2}.field input,.field select{width:100%;min-height:38px;padding:8px 9px;border-radius:9px;font-size:13px}.time-results{gap:6px;margin-top:6px}.time-result{padding:7px;gap:6px;border-radius:9px}.time-result svg{width:18px;height:18px}.time-result small{font-size:9px}.time-result strong{font-size:17px;margin-top:2px}.actions{gap:6px;margin-top:7px}.btn{padding:9px 10px;font-size:11px;border-radius:9px}.copybtn{font-size:13px;padding:10px;border-radius:10px}.smallnote{font-size:10px;margin-top:6px;line-height:1.3}
+}
+@media(max-width:360px){.metric{padding:6px;gap:4px}.metric .micon{width:23px;height:23px}.metric .micon svg{width:14px;height:14px}.metric .value{font-size:17px}.metric .ring{width:30px;height:30px}.hero h1{font-size:16px}.tab{font-size:9px}.status-metric .ring{width:29px;height:29px}}
+
+
+#editRows input{display:block;width:100%;max-width:100%;min-width:0;box-sizing:border-box;margin:0;border:1px solid #d9e5f1;border-radius:7px;background:#fff;color:#183653;font:600 12px/1.2 inherit;height:34px;padding:6px 5px;text-align:center}
+#editRows td{padding:7px 5px;overflow:hidden;vertical-align:middle}
+#editRows td:first-child input{font-size:11px;font-weight:650}
+#lineEditTable th:nth-child(1),#lineEditTable tfoot td:nth-child(1){width:33%}
+#lineEditTable th:nth-child(2),#lineEditTable tfoot td:nth-child(2){width:37%}
+#lineEditTable th:nth-child(3),#lineEditTable tfoot td:nth-child(3){width:30%}
+#lineEditTable tfoot td{white-space:nowrap;font-size:12px;padding:9px 3px}
+
+
+/* v15: compact mobile dashboard and checking card */
+@media(max-width:600px){
+  .shell{padding:6px 7px 12px}
+  .dash-card{padding:8px;margin-bottom:7px;border-radius:13px}
+  .section-title{gap:8px;margin-bottom:7px}
+  .section-title h2{font-size:17px;line-height:1.12}
+  .section-title p{font-size:10px;line-height:1.25;margin-top:2px}
+  .section-icon{width:31px;height:31px;border-radius:10px}
+  .section-icon svg{width:19px;height:19px}
+  .metric{padding:7px;gap:6px;border-radius:10px}
+  .metric .micon{width:30px;height:30px}
+  .metric .micon svg{width:17px;height:17px}
+  .metric .mlabel{font-size:9px;line-height:1.15}
+  .metric .value{font-size:19px;line-height:1.05;margin-top:2px}
+  .metric .hint{font-size:9px;line-height:1.15;margin-top:2px}
+  .tablewrap th{padding:7px 3px;font-size:10px}
+  .tablewrap td{padding:6px 3px;font-size:10px}
+  .tablewrap tfoot td{padding:7px 3px}
+  .status-metrics{gap:6px}
+  .status-metric{padding:7px;gap:5px}
+  .status-metric .sicon{width:27px;height:27px}
+  .status-metric .value{font-size:19px;margin:2px 0}
+  .field label{font-size:10px;margin-bottom:3px}
+  .field input,.field select{min-height:35px;padding:7px 8px;font-size:13px}
+  #forCheckingCard{padding:8px;margin-bottom:7px}
+  #forCheckingCard .section-title{margin-bottom:5px}
+  #forCheckingCard .section-title p{display:none}
+  #forCheckingCard .checking-metric{
+    min-height:0!important;display:grid;grid-template-columns:30px minmax(0,1fr);
+    grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:1px;
+    padding:8px 9px;border-radius:10px
+  }
+  #forCheckingCard .checking-metric .micon{grid-row:1 / span 2;width:28px;height:28px}
+  #forCheckingCard .checking-metric>div:last-child{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:8px}
+  #forCheckingCard .checking-metric .mlabel{font-size:10px}
+  #forCheckingCard .checking-metric .value{font-size:22px;margin:0}
+  #forCheckingCard .checking-metric .hint{grid-column:1 / -1;font-size:9px;margin-top:3px}
+  #modBalanceLine{min-height:36px}
+  .smallnote{font-size:10px;line-height:1.25;margin-top:5px}
+}
+@media(max-width:380px){
+  .section-title h2{font-size:16px}
+  .metric .value{font-size:17px}
+  #forCheckingCard .checking-metric .value{font-size:20px}
+}
+
+
+/* v17: inline local date/time in the existing Shift Summary heading; do not increase card height */
+.summary-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.summary-heading-copy{flex:1;min-width:0}
+.summary-heading-copy p{max-width:100%}
+.summary-clock{flex:none;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;text-align:right;white-space:nowrap;line-height:1.1;margin-left:auto;padding-left:4px}
+.summary-date{font-size:11px;font-weight:750;letter-spacing:.15px;color:#0875d8}
+.summary-time{font-size:16px;font-weight:900;letter-spacing:-.25px;color:#102b50;font-variant-numeric:tabular-nums}
+@media(max-width:600px){
+ .summary-heading{gap:7px;margin-bottom:7px;min-height:31px}
+ .summary-heading-copy{flex:1 1 auto;min-width:0}
+ .summary-heading-copy h2{font-size:15px;line-height:1.15}
+ .summary-heading-copy p{font-size:9px;line-height:1.15;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .summary-clock{gap:2px;padding-left:2px;max-width:37%}
+ .summary-date{font-size:9px;letter-spacing:0}
+ .summary-time{font-size:13px;letter-spacing:-.2px}
+}
+@media(max-width:360px){.summary-heading{gap:5px}.summary-heading-copy p{font-size:8px}.summary-date{font-size:8px}.summary-time{font-size:12px}}
+
+</style>
+</head>
+<body>
+<div class="shell" id="dashboard">
+<header class="hero">
+ <div class="hero-top">
+  <div class="brand-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 19V12M10 19V6M16 19V9M22 19V3"/></svg></div>
+  <div><div class="eyebrow">MOBILE-FIRST WORKFORCE TOOL</div><h1>HC / Line Completion</h1></div>
+  <div class="hero-art" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><circle cx="16" cy="23" r="14" fill="#0757a2"/><path d="M16 14v10l7 4" stroke="#dff5ff" stroke-width="3" stroke-linecap="round"/><rect x="31" y="7" width="27" height="43" rx="5" fill="#e9f5ff" stroke="#8ed4ff" stroke-width="2"/><path d="M37 38V29M43 38V22M49 38V16" stroke="#1686ed" stroke-width="3.5" stroke-linecap="round"/><path d="M36 43h17" stroke="#1686ed" stroke-width="2"/><path d="M41 8V4h8v4" stroke="#8ed4ff" stroke-width="2"/><path d="M48 49l5 7 4-7" fill="#ffbe36" stroke="#ffbe36" stroke-width="3"/></svg></div>
+ </div>
+ <p>Estimate staffing, order completion, block status and remaining shift time.</p>
+</header>
+<nav class="tabs" aria-label="Pages">
+ <button class="tab active" data-tab="summary"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11.2 12 3l9 8.2h-2.5V21h-5v-6h-3v6h-5v-9.8z"/></svg>Summary</button>
+ <button class="tab" data-tab="hc"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM1 20v-2c0-3 3.5-5 7-5s7 2 7 5v2H1Zm14-6c4 0 8 1.7 8 5v1h-6v-2c0-1.5-.7-2.9-2-4Z"/></svg>HC → Line</button>
+ <button class="tab" data-tab="line"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h14l-3-3M20 17H6l3 3"/></svg>Line → HC</button>
+ <button class="tab" data-tab="rules"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m19.4 13 .1-2 2-1.5-2-3.4-2.4.7-1.7-1L15 3h-4l-.5 2.8-1.7 1-2.4-.7-2 3.4 2 1.5v2l-2 1.5 2 3.4 2.4-.7 1.7 1L11 21h4l.5-2.8 1.7-1 2.4.7 2-3.4-2.2-1.5ZM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg>Rules</button>
+</nav>
+<section class="panel active" id="summary">
+ <div class="dash-card summary-card">
+  <div class="section-title summary-heading"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 19h4V9H3v10Zm7 0h4V4h-4v15Zm7 0h4V7h-4v12Z"/></svg></div><div class="summary-heading-copy"><h2>Shift Summary</h2><p>Overall requirement, live order balance and estimated time-to-finish.</p></div><div class="summary-clock" aria-label="Current local date and time"><span class="summary-date" id="summaryDate">16 Oct 2026</span><strong class="summary-time" id="summaryTime">08:36 PM</strong></div></div>
+  <div class="metrics">
+   <div class="metric blue"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h9l5 5v15H4V2h2Zm8 2v4h4M7 11h10v2H7zm0 4h10v2H7z"/></svg></div><div><div class="mlabel">Overall Order Line</div><div class="value" id="sumOrder">2,870</div></div></div>
+   <div class="metric blue"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM1 20v-2c0-3 3.5-5 7-5s7 2 7 5v2H1Zm14-6c4 0 8 1.7 8 5v1h-6v-2c0-1.5-.7-2.9-2-4Z"/></svg></div><div><div class="mlabel">Overall Request HC</div><div class="value" id="sumHC">14</div></div></div>
+   <div class="metric red" id="balanceMetric"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div style="flex:1"><div class="mlabel">Current Order Balance Line</div><div class="value" id="sumBalance">1,800</div></div><div class="ring" id="balanceRing" style="--pct:62.7%"><span id="balancePct">62.7%<br><small>of order</small></span></div></div>
+   <div class="metric green"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM1 20v-2c0-3 3.5-5 7-5s7 2 7 5v2H1Zm14-6c4 0 8 1.7 8 5v1h-6v-2c0-1.5-.7-2.9-2-4Z"/></svg></div><div><div class="mlabel">Current Active HC</div><div class="value" id="sumActiveHC">3</div></div></div>
+   <div class="metric amber"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 5v4.6l3.3 2-1.1 1.8L11 12.7V7Z"/></svg></div><div><div class="mlabel">Estimates Complete Hours</div><div class="value" id="sumCompleteHours">30h 0m</div><div class="hint">Balance ÷ active HC ÷ rate</div></div></div>
+   <div class="metric blue"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a2 2 0 0 1 2 2v1h3a3 3 0 0 1 3 3v11H4V8a3 3 0 0 1 3-3h3V4a2 2 0 0 1 2-2Zm-1 3h2V4h-2v1Zm1 4a1.5 1.5 0 0 0-1.5 1.5c0 .7.5 1.2 1 1.5V16h1v-2c.8-.3 1-1 1-1.5A1.5 1.5 0 0 0 12 9Z"/></svg></div><div><div class="mlabel">Current Balance Hours</div><div class="value" id="sumBalanceHours">8h 0m</div><div class="hint">Time left after break</div></div></div>
+  </div>
+  <div class="alert" id="timeAlert"><div class="alert-icon">!</div><div><strong id="alertTitle">Time may be short</strong><span id="alertText">1,800 balance lines · estimate 30h 0m · available 8h 0m.</span></div></div>
+ </div>
+ <div class="dash-card block-card">
+  <div class="section-title"><div class="section-icon i-green"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div><h2>Overall Block Balance Invoice Status</h2><p>Shows current balance lines by block. Overall Order Line is entered separately.</p></div></div>
+  <div class="field" style="margin:0 0 8px"><label for="blockFilter">Filter by Block</label><select id="blockFilter" aria-label="Filter dashboard by block"><option value="all">All Blocks</option></select></div>
+  <div class="tablewrap"><table><thead><tr><th style="width:25%">Block</th><th style="width:20%">Balance Line</th><th style="width:18%">Request HC</th><th style="width:37%">% of Total</th></tr></thead><tbody id="blockRows"></tbody><tfoot><tr><td id="totalLabel">Total Balance Line</td><td id="totalLine">2,870</td><td id="totalHC">14</td><td id="totalPct">100%</td></tr></tfoot></table></div>
+  <div class="actions"><button class="btn secondary" data-goto="line">Edit Line → HC</button></div>
+ </div>
+ <div class="dash-card summary-card" id="forCheckingCard" style="border-color:#9fc9ff;background:linear-gradient(145deg,#f4faff,#e6f2ff)">
+  <div class="section-title"><div class="section-icon i-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/><path d="m8 2-4 3 4 3M16 9l4 3-4 3"/></svg></div><div><h2>For Checking</h2><p>Total Balance Line − MOD Balance Pick Line. Use this to check the difference.</p></div></div>
+  <div class="metric blue checking-metric"><div class="micon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h16v18H4zM7 7h10v2H7zm0 4h10v2H7zm0 4h6v2H7z"/></svg></div><div><div class="mlabel">For Checking Line</div><div class="value" id="forCheckingLine">0</div><div class="hint" id="forCheckingFormula">1,265 − 500</div></div></div>
+ </div>
+ <div class="dash-card status-card">
+  <div class="section-title"><div class="section-icon i-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 6-6"/></svg></div><div><h2>Current Order Status</h2><p>Complete Pick = Overall Order Line minus the E, F, G and H current balance lines.</p></div></div>
+  <div class="status-metrics">
+   <div class="status-metric"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 3 6v6c0 5 3.8 8.5 9 10 5.2-1.5 9-5 9-10V6l-9-4Zm-1 14-4-4 1.5-1.5L11 13l4.5-4.5L17 10l-6 6Z"/></svg></div><div style="min-width:0"><strong>Complete Pick</strong><div class="value" id="completePick">1,070</div><small id="completePct">37.3% of order</small></div><div class="ring" id="completeRing" style="--pct:37.3%;background:conic-gradient(#009b69 37.3%,#bcebdc 0)"><span id="completeRingText">37.3%</span></div></div>
+   <div class="status-metric red"><div class="sicon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 10 5.5v9L12 22 2 16.5v-9L12 2Zm0 2.5L5 8l7 3.8L19 8l-7-3.5Zm-8 5v5.7l7 3.9v-6.1L4 9.5Zm16 0-7 3.5v6.1l7-3.9V9.5Z"/></svg></div><div style="min-width:0"><strong>MOD Balance Pick</strong><div class="value" id="statusBalance">1,800</div><small id="statusBalancePct">62.7% of order</small></div><div class="ring" id="statusBalanceRing" style="--pct:62.7%"><span id="statusBalanceRingText">62.7%</span></div></div>
+  </div>
+  <div class="field" style="margin-top:10px"><label for="modBalanceLine">MOD Balance Pick Line (manual, optional override)</label><input id="modBalanceLine" type="number" min="0" step="1" placeholder="Auto: total of E, F, G and H" inputmode="numeric"><p class="smallnote" style="margin-top:5px">Leave blank to use the automatic E–H balance total. Enter a MOD figure only when you need to override it.</p></div>
+ </div>
+ <button class="btn copybtn" id="copyImage"><svg style="width:22px;height:22px;vertical-align:middle;margin-right:7px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a2 2 0 0 1 2 2v9H2v-9a2 2 0 0 1 2-2Z"/><circle cx="12" cy="13" r="3"/></svg>Copy as Image</button>
+ <p class="smallnote" id="copyNote">Copies the dashboard as an image when supported by your browser. If image clipboard access is blocked, a PNG download will be offered.</p>
+ <div class="dash-card time-card">
+  <div class="section-title"><div class="section-icon i-amber"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm1 5v4.6l3.5 2.1-1 1.7-4.5-2.8V7Z"/></svg></div><div><h2>Remaining Time Calculator</h2><p>Choose the current time manually, then set the stop time and remaining break minutes.</p></div></div>
+  <div class="formgrid">
+   <div class="field"><label for="currentTime">Current Time</label><input id="currentTime" type="time" value="10:29"></div>
+   <div class="field"><label for="stopTime">Stop Time</label><input id="stopTime" type="time" value="18:00"></div>
+   <div class="field"><label for="breakMin">Break (minutes)</label><input id="breakMin" type="number" min="0" step="1" value="120" inputmode="numeric"></div>
+   <div class="field"><label for="activeHC">Current HC</label><input id="activeHC" type="number" min="0" step="1" value="3" inputmode="numeric"></div>
+   <div class="field"><label for="rate">Lines / HC / hour</label><input id="rate" type="number" min="0" step="0.5" value="20" inputmode="decimal"></div>
+  </div>
+  <div class="field" style="margin-top:8px;display:flex;align-items:center;gap:8px"><input id="overnight" type="checkbox" style="width:18px;height:18px;accent-color:#0878df"><label for="overnight" style="margin:0">Stop time is tomorrow (overnight shift)</label></div>
+  <div class="time-results">
+   <div class="time-result"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12v3l-3 5 3 5v7H6v-7l3-5-3-5V2Zm3 2 3 5 3-5H9Zm3 7-3 5v4h6v-4l-3-5Z"/></svg><div><small>Remaining Work Time</small><strong id="remainingTime">8h 0m</strong></div></div>
+   <div class="time-result blue"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h3v3H3V4Zm5 0h13v3H8V4ZM3 10h3v3H3v-3Zm5 0h13v3H8v-3ZM3 16h3v3H3v-3Zm5 0h13v3H8v-3Z"/></svg><div><small>Estimated Remaining Lines</small><strong id="estimatedLines">480</strong><small id="estimateFormula">8h × 3 HC × 20 lines/hr</small></div></div>
+  </div>
+  <div class="actions"><button class="btn secondary" id="clearTime">Clear Time</button></div>
+ </div>
+</section>
+<section class="panel" id="hc">
+ <div class="dash-card summary-card"><div class="section-title"><div class="section-icon i-blue">👥</div><div><h2>HC → Line</h2><p>Calculate line capacity from HC, hours and rate.</p></div></div>
+  <div class="metrics">
+   <div class="field"><label for="hcCount">Available HC</label><input id="hcCount" type="number" value="14" min="0" step="1"></div>
+   <div class="field"><label for="hcHours">Working hours / person</label><input id="hcHours" type="number" value="8" min="0" step="0.5"></div>
+   <div class="field"><label for="hcRate">Lines / HC / hour</label><input id="hcRate" type="number" value="20" min="0" step="0.5"></div>
+   <div class="metric green"><div><div class="mlabel">Estimated Line Capacity</div><div class="value" id="hcCapacity">2,240</div></div></div>
+  </div>
+  <div class="actions"><button class="btn secondary" id="clearHC">Clear</button></div>
+ </div>
+</section>
+<section class="panel" id="line">
+ <div class="dash-card block-card"><div class="section-title"><div class="section-icon i-green">⇄</div><div><h2>Line → HC</h2><p>Enter the overall order total above. Use E, F, G and H for current order balance lines.</p></div></div>
+  <div class="field"><label for="overallLine">Overall Order Line (total order)</label><input id="overallLine" type="number" min="0" step="1" value="2870" inputmode="numeric"></div>
+  <div class="field" style="margin-top:10px"><label for="overallHours">Overall Working Hours (for Overall Request HC only)</label><input id="overallHours" type="number" min="0" step="0.5" value="9" inputmode="decimal"></div>
+  <p class="smallnote">Overall Request HC is calculated independently from the E–H balance lines: Overall Order Line ÷ (Overall Working Hours × Weighted lines / HC / hour), rounded up.</p>
+  <div class="tablewrap line-edit-wrap" style="margin-top:10px"><table id="lineEditTable"><colgroup><col style="width:33%"><col style="width:37%"><col style="width:30%"></colgroup><thead><tr><th>Block</th><th>Current Balance Line</th><th>Request HC</th></tr></thead><tbody id="editRows"></tbody><tfoot><tr><td>Total Balance</td><td id="editTotalLine">2,870</td><td id="editTotalHC">14</td></tr></tfoot></table></div>
+  <div class="field" style="margin-top:10px"><label for="lineHours">Hours per person</label><input id="lineHours" type="number" min="0" step="0.5" value="10"></div>
+  <div class="field" style="margin-top:10px"><label for="lineRate">Weighted lines / HC / hour</label><input id="lineRate" type="number" min="0" step="0.5" value="20"></div>
+  <div class="actions"><button class="btn" id="addBlock">+ Add Block</button><button class="btn secondary" id="clearLine">Clear</button><button class="btn secondary" id="resetBlocks">Reset E–H</button></div>
+ </div>
+</section>
+<section class="panel" id="rules">
+ <div class="dash-card summary-card"><div class="section-title"><div class="section-icon i-blue">⚙️</div><div><h2>Rules & Settings</h2><p>Adjust the standard line rates used by the calculator.</p></div></div>
+  <div class="formgrid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+   <div class="field"><label for="fwcRate">FWC lines / hour</label><input id="fwcRate" type="number" value="25" min="0" step="0.5"></div>
+   <div class="field"><label for="lwcfRate">LWC Full Time lines / hour</label><input id="lwcfRate" type="number" value="20" min="0" step="0.5"></div>
+   <div class="field"><label for="lwcpRate">LWC Part Time lines / hour</label><input id="lwcpRate" type="number" value="15" min="0" step="0.5"></div>
+   <div class="field"><label for="ttRate">TT-Line lines / hour</label><input id="ttRate" type="number" value="25" min="0" step="0.5"></div>
+  </div>
+  <p class="smallnote">These rates are defaults. The active line rate in the Remaining Time Calculator and Line → HC page is editable independently.</p>
+  <div class="actions"><button class="btn secondary" id="clearAll">Clear All Inputs</button></div>
+ </div>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n||0).toLocaleString('en-US',{maximumFractionDigits:1});
+const val=id=>Math.max(0,Number($(id).value)||0);
+const STORAGE_KEY='hcLineCompletion.savedState.v1';
+const state={blocks:[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}],filter:'all'};
+function selectedBlock(){return state.filter==='all'?null:state.blocks.find(b=>b.name===state.filter)||null}
+function renderBlockFilter(){
+ const el=$('blockFilter'); if(!el)return;
+ const current=state.filter;
+ el.innerHTML='<option value="all">All Blocks</option>'+state.blocks.map(b=>`<option value="${b.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${b.name}</option>`).join('');
+ if(current!=='all'&&state.blocks.some(b=>b.name===current))el.value=current;else{state.filter='all';el.value='all'}
+}
+const persistedInputIds=['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','overallHours','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'];
+function saveState(){
+ try{
+  const inputs={};
+  persistedInputIds.forEach(id=>{const el=$(id);if(el)inputs[id]=el.type==='checkbox'?el.checked:el.value});
+  localStorage.setItem(STORAGE_KEY,JSON.stringify({inputs,blocks:state.blocks,filter:state.filter,savedAt:new Date().toISOString()}));
+ }catch(e){/* storage may be unavailable in private browsing */}
+}
+function restoreState(){
+ try{
+  const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return;
+  const saved=JSON.parse(raw);
+  if(saved&&saved.inputs){
+   persistedInputIds.forEach(id=>{const el=$(id);if(el&&Object.prototype.hasOwnProperty.call(saved.inputs,id)){if(el.type==='checkbox')el.checked=!!saved.inputs[id];else el.value=saved.inputs[id]}});
+  }
+  if(saved.filter)state.filter=saved.filter;
+   if(Array.isArray(saved.blocks)&&saved.blocks.length){
+   state.blocks=saved.blocks.filter(b=>b&&typeof b.name==='string').map(b=>({name:b.name,line:Math.max(0,Number(b.line)||0)}));
+   if(!state.blocks.length)state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];
+  }
+  if(!$('overallLine').value.trim())$('overallLine').value=String(state.blocks.reduce((sum,b)=>sum+b.line,0));
+ }catch(e){/* ignore corrupted saved data and use defaults */}
+}
+function hoursText(mins){mins=Math.max(0,Math.round(mins));return `${Math.floor(mins/60)}h ${mins%60}m`}
+function percent(n,total){return total>0?Math.min(100,n/total*100):0}
+function renderEditRows(){
+ $('editRows').innerHTML=state.blocks.map((b,i)=>`<tr><td><input aria-label="Block name" data-name="${i}" value="${b.name.replace(/"/g,'&quot;')}" class="block-name-input"></td><td><input aria-label="Order line" data-line="${i}" type="number" min="0" step="1" value="${b.line}" class="block-line-input"></td><td id="hc_${i}">0</td></tr>`).join('');
+ $('editRows').querySelectorAll('[data-name]').forEach(el=>el.addEventListener('input',e=>{state.blocks[+e.target.dataset.name].name=e.target.value;renderBlockFilter();renderAll()}));
+ $('editRows').querySelectorAll('[data-line]').forEach(el=>el.addEventListener('input',e=>{state.blocks[+e.target.dataset.line].line=Math.max(0,Number(e.target.value)||0);renderAll()}));
+}
+function calc(){
+ const allBalanceLines=state.blocks.reduce((s,b)=>s+b.line,0);
+ const chosen=selectedBlock();
+ const enteredTotal=$('overallLine').value.trim();
+ const total=enteredTotal===''?0:val('overallLine');
+ const rate=val('lineRate'), hrs=val('lineHours'), overallHrs=val('overallHours');
+ const hcFor=line=>rate>0&&hrs>0?Math.ceil(line/(rate*hrs)):0;
+ const totalHC=state.blocks.reduce((s,b)=>s+hcFor(b.line),0);
+ const overallHC=rate>0&&overallHrs>0?Math.ceil(total/(rate*overallHrs)):0;
+ const modOverride=$('modBalanceLine').value.trim();
+ const balance=chosen?chosen.line:(modOverride===''?allBalanceLines:val('modBalanceLine'));
+ const displayLines=chosen?chosen.line:allBalanceLines;
+ const displayHC=chosen?hcFor(chosen.line):totalHC;
+ const complete=Math.max(0,total-balance);
+ const balanceP=percent(balance,total),completeP=percent(complete,total);
+ const currentTime=$('currentTime').value,stopTime=$('stopTime').value;
+ let mins=0;
+ if(currentTime&&stopTime){
+  const [ch,cm]=currentTime.split(':').map(Number),[sh,sm]=stopTime.split(':').map(Number);
+  let start=ch*60+cm,end=sh*60+sm;
+  if($('overnight').checked||end<start)end+=1440;
+  mins=Math.max(0,end-start-val('breakMin'));
+ }
+ const active=val('activeHC'),timeLines=Math.floor(mins/60*active*val('rate'));
+ const completeHours=active>0&&val('rate')>0?balance/(active*val('rate'))*60:0;
+ const forChecking=chosen?null:allBalanceLines-balance;
+ return {lines:allBalanceLines,displayLines,displayHC,chosen,total,rate,hrs,overallHrs,hcFor,totalHC,overallHC,balance,complete,balanceP,completeP,forChecking,mins,timeLines,active,completeHours};
+}
+function renderAll(){
+ const c=calc(),order=c.total;
+ $('sumOrder').textContent=fmt(order);$('sumHC').textContent=fmt(c.overallHC);
+ $('sumBalance').textContent=fmt(c.balance);$('sumActiveHC').textContent=fmt(c.active);
+ $('sumCompleteHours').textContent=c.active>0&&val('rate')>0?hoursText(c.completeHours):'—';
+ $('sumBalanceHours').textContent=hoursText(c.mins);
+ $('balancePct').innerHTML=`${c.balanceP.toFixed(1)}%<br><small>of order</small>`;
+ $('balanceRing').style.setProperty('--pct',c.balanceP+'%');
+ $('balanceMetric').classList.toggle('red',c.balance>0);$('balanceMetric').classList.toggle('green',c.balance===0);
+ $('balanceMetric').style.background=c.balance>0?'':'linear-gradient(145deg,#f1fffa,#d8f8ed)';
+ $('balanceMetric').style.borderColor=c.balance>0?'':'#9fe5cf';
+ $('balanceMetric').querySelector('.value').style.color=c.balance>0?'':'#00895e';
+ $('balanceMetric').querySelector('.micon').style.color=c.balance>0?'':'#00895e';
+ $('completePick').textContent=fmt(c.complete);$('completePct').textContent=`${c.completeP.toFixed(1)}% of order`;
+ $('statusBalance').textContent=fmt(c.balance);$('statusBalancePct').textContent=`${c.balanceP.toFixed(1)}% of order`;
+ $('completeRing').style.background=`conic-gradient(#009b69 ${c.completeP}%,#bcebdc 0)`;$('completeRingText').textContent=`${c.completeP.toFixed(1)}%`;
+ $('statusBalanceRing').style.setProperty('--pct',c.balanceP+'%');$('statusBalanceRingText').textContent=`${c.balanceP.toFixed(1)}%`;
+ $('totalLine').textContent=fmt(c.displayLines);$('editTotalLine').textContent=fmt(c.lines);
+ $('totalHC').textContent=fmt(c.displayHC);$('editTotalHC').textContent=fmt(c.totalHC);
+ $('totalLabel').textContent=c.chosen?`${c.chosen.name} Balance`: 'Total Balance Line';
+ $('totalPct').textContent=c.chosen?`${percent(c.chosen.line,c.lines).toFixed(1)}%`:'100%';
+ $('forCheckingLine').textContent=c.forChecking===null?'—':fmt(c.forChecking);
+ $('forCheckingFormula').textContent=c.chosen?'Select All Blocks to compare total balance with the MOD balance pick line.':`${fmt(c.lines)} Total Balance Line − ${fmt(c.balance)} MOD Balance Pick Line`;
+ const rows=c.chosen?state.blocks.filter(b=>b===c.chosen):state.blocks;
+ $('blockRows').innerHTML=rows.map((b)=>{const p=percent(b.line,c.lines);const hc=c.hcFor(b.line);const originalIndex=state.blocks.indexOf(b);const colors=['','green','amber','purple'];return `<tr><td>${b.name}</td><td>${fmt(b.line)}</td><td>${fmt(hc)}</td><td><div class="bar-cell"><span>${p.toFixed(1)}%</span><span class="bar ${colors[originalIndex%4]}"><i style="width:${p}%"></i></span></div></td></tr>`}).join('');
+ state.blocks.forEach((b,i)=>{const el=$('hc_'+i);if(el)el.textContent=fmt(c.hcFor(b.line))});
+ $('remainingTime').textContent=hoursText(c.mins);$('estimatedLines').textContent=fmt(c.timeLines);
+ $('estimateFormula').textContent=`${hoursText(c.mins)} × ${c.active} HC × ${val('rate')} lines/hr`;
+ $('alertText').textContent=`${fmt(c.balance)} balance lines · estimate ${$('sumCompleteHours').textContent} · available ${hoursText(c.mins)}.`;
+ const warn=c.balance>0&&c.mins>0&&c.timeLines<c.balance;
+ $('timeAlert').classList.toggle('hidden',!(warn||c.balance>0&&c.mins===0));
+ $('alertTitle').textContent=warn?'Time may be short':c.balance>0&&c.mins===0?'Set current and stop time':'';
+ $('hcCapacity').textContent=fmt(val('hcCount')*val('hcHours')*val('hcRate'));
+ saveState();
+}
+document.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b===btn));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===btn.dataset.tab));window.scrollTo({top:0,behavior:'smooth'})}));
+document.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>document.querySelector(`[data-tab="${btn.dataset.goto}"]`).click()));
+['currentTime','stopTime','breakMin','activeHC','rate','overnight','overallLine','overallHours','modBalanceLine','lineHours','lineRate','hcCount','hcHours','hcRate','fwcRate','lwcfRate','lwcpRate','ttRate'].forEach(id=>$(id).addEventListener('input',renderAll));
+$('blockFilter').addEventListener('change',e=>{state.filter=e.target.value;renderAll()});
+$('addBlock').addEventListener('click',()=>{state.blocks.push({name:`Picking - ${String.fromCharCode(69+state.blocks.length)}`,line:0});renderEditRows();renderAll()});
+$('resetBlocks').addEventListener('click',()=>{state.blocks=[{name:'Picking - E',line:1260},{name:'Picking - F',line:778},{name:'Picking - G',line:407},{name:'Picking - H',line:425}];renderEditRows();renderAll()});
+$('clearLine').addEventListener('click',()=>{state.blocks.forEach(b=>b.line=0);renderEditRows();renderAll()});
+$('clearTime').addEventListener('click',()=>{['currentTime','stopTime','breakMin','activeHC','rate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderAll()});
+$('clearHC').addEventListener('click',()=>{['hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');renderAll()});
+$('clearAll').addEventListener('click',()=>{if(confirm('Clear all calculator inputs?')){state.blocks.forEach(b=>b.line=0);['overallLine','overallHours','modBalanceLine','currentTime','stopTime','breakMin','activeHC','rate','hcCount','hcHours','hcRate'].forEach(id=>$(id).value='');$('overnight').checked=false;renderEditRows();renderAll()}});
+async function copyDashboard(){
+ const btn=$('copyImage'),note=$('copyNote'),old=btn.innerHTML;
+ btn.disabled=true;btn.textContent='Preparing image…';
+ let captureHost=null;
+ try{
+  if(!window.html2canvas){
+   await new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+   });
+  }
+  // Make a clean image-only copy of the header, navigation and the three main dashboards.
+  captureHost=document.createElement('div');
+  captureHost.style.cssText='position:fixed;left:-12000px;top:0;width:'+Math.min(940,document.querySelector('.shell').clientWidth)+'px;z-index:-1;pointer-events:none;';
+  const clone=$('dashboard').cloneNode(true);
+  clone.id='dashboardCapture';
+  clone.style.width='100%';clone.style.maxWidth='none';clone.style.margin='0';clone.style.padding='12px';
+  clone.querySelectorAll('.panel').forEach(p=>{if(p.id!=='summary')p.remove();else p.classList.add('active')});
+  clone.querySelectorAll('#copyImage,#copyNote,.time-card').forEach(el=>el.remove());
+  // Keep the Current Order Status cards in the image, but stop at the red line: exclude the MOD manual input row and its note.
+  clone.querySelectorAll('.status-card .field').forEach(el=>el.remove());
+  clone.querySelectorAll('[data-goto]').forEach(el=>el.remove());
+  // Prevent the screenshot from inheriting any narrow native-input layout from the time calculator.
+  captureHost.appendChild(clone);document.body.appendChild(captureHost);
+  const canvas=await html2canvas(clone,{backgroundColor:'#f2f7ff',scale:2,useCORS:true,logging:false});
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob)throw new Error('Could not create PNG');
+  if(navigator.clipboard&&window.ClipboardItem){
+   try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);note.textContent='Dashboard copied as an image. MOD input row and Remaining Time are excluded.'}
+   catch(e){downloadBlob(blob);note.textContent='Image clipboard blocked. Dashboard PNG downloaded instead.'}
+  }else{downloadBlob(blob);note.textContent='Dashboard PNG downloaded. MOD input row and Remaining Time are excluded.'}
+ }catch(e){note.textContent='Could not create image in this browser. Open the site in Safari and try again.'}
+ finally{if(captureHost)captureHost.remove();btn.disabled=false;btn.innerHTML=old}
+}
+$('copyImage').addEventListener('click',copyDashboard);
+
+function updateSummaryClock(){
+ const now=new Date();
+ const dateEl=document.getElementById('summaryDate');
+ const timeEl=document.getElementById('summaryTime');
+ if(!dateEl||!timeEl)return;
+ dateEl.textContent=new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'short',year:'numeric'}).format(now);
+ timeEl.textContent=new Intl.DateTimeFormat('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}).format(now);
+}
+updateSummaryClock();
+setInterval(updateSummaryClock,1000);
+
+restoreState();
+renderEditRows();renderBlockFilter();renderAll();
+</script>
+</body></html>
