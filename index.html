@@ -396,7 +396,27 @@ async function copyDashboard(){
   // Keep the Current Order Status cards in the image, but stop at the red line: exclude the MOD manual input row and its note.
   clone.querySelectorAll('.status-card .field').forEach(el=>el.remove());
   clone.querySelectorAll('[data-goto]').forEach(el=>el.remove());
-  // Prevent the screenshot from inheriting any narrow native-input layout from the time calculator.
+  // Give the captured copy its own page and card backgrounds.
+  // This affects only the temporary image clone, not the live dashboard.
+  clone.style.background='linear-gradient(160deg,#e8f3ff 0%,#f6f8ff 45%,#eef2ff 100%)';
+  clone.style.backgroundColor='#f2f7ff';
+  clone.style.backgroundImage='linear-gradient(160deg,#e8f3ff 0%,#f6f8ff 45%,#eef2ff 100%)';
+  clone.querySelectorAll('.dash-card').forEach(card=>{
+   card.style.backgroundImage='';
+   card.style.backgroundColor='';
+   if(card.classList.contains('block-card')){
+    card.style.background='linear-gradient(145deg,#f2fffc,#e5f7f7)';
+   }else if(card.classList.contains('status-card')){
+    card.style.background='linear-gradient(145deg,#fbf8ff,#f0eaff)';
+   }else if(card.classList.contains('time-card')){
+    card.style.background='linear-gradient(145deg,#fffaf0,#fff0d9)';
+   }else{
+    card.style.background='linear-gradient(145deg,#f4fbff,#e7f4ff)';
+   }
+  });
+  // Restore the intended pale-blue page backdrop in the exported image.
+  captureHost.style.background='linear-gradient(160deg,#e8f3ff,#f6f8ff 45%,#eef2ff)';
+  captureHost.style.padding='12px';
   captureHost.appendChild(clone);document.body.appendChild(captureHost);
   const canvas=await html2canvas(clone,{backgroundColor:'#f2f7ff',scale:2,useCORS:true,logging:false});
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
